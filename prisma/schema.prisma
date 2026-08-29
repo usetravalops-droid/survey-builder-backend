@@ -1,55 +1,57 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
+  provider = "mysql"
 }
 
 model User {
-    id            String  @id @default(cuid())
-    email         String  @unique
-    passwordHash  String
-    emailVerified Boolean @default(false)
-
-    tokenVersion Int @default(0)
-
-    surveys   Survey[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  emailVerified Boolean  @default(false)
+  tokenVersion  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  surveys       Survey[]
 }
 
 model Survey {
-    id          String @id @default(cuid())
-    title       String
-    description String
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
+  questions   Question[]
+  responses   Response[]
+  user        User       @relation(fields: [userId], references: [id])
 
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    questions Question[]
-    responses Response[]
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+  @@index([userId], map: "Survey_userId_fkey")
 }
 
 model Question {
-    id        Int     @id @default(autoincrement())
-    clientId  String 
-    label     String
-    type      String
-    options   Json?
-    required  Boolean @default(false)
-    condition Json?
-    position  Int
+  id        Int     @id @default(autoincrement())
+  label     String
+  type      String
+  options   Json?
+  surveyId  String
+  clientId  String
+  condition Json?
+  position  Int
+  required  Boolean @default(false)
+  survey    Survey  @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
-    surveyId String
-    survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  @@index([surveyId], map: "Question_surveyId_fkey")
 }
 
 model Response {
-    id        Int      @id @default(autoincrement())
-    surveryId String
-    response  Json
-    survey    Survey   @relation(fields: [surveryId], references: [id])
-    createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  surveryId String
+  response  Json
+  createdAt DateTime @default(now())
+  survey    Survey   @relation(fields: [surveryId], references: [id])
+
+  @@index([surveryId], map: "Response_surveryId_fkey")
 }
