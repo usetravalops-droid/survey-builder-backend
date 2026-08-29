@@ -1,0 +1,55 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+}
+
+model User {
+    id            String  @id @default(cuid())
+    email         String  @unique
+    passwordHash  String
+    emailVerified Boolean @default(false)
+
+    tokenVersion Int @default(0)
+
+    surveys   Survey[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Survey {
+    id          String @id @default(cuid())
+    title       String
+    description String
+
+    userId    String
+    user      User       @relation(fields: [userId], references: [id])
+    questions Question[]
+    responses Response[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+}
+
+model Question {
+    id        Int     @id @default(autoincrement())
+    clientId  String 
+    label     String
+    type      String
+    options   Json?
+    required  Boolean @default(false)
+    condition Json?
+    position  Int
+
+    surveyId String
+    survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+}
+
+model Response {
+    id        Int      @id @default(autoincrement())
+    surveryId String
+    response  Json
+    survey    Survey   @relation(fields: [surveryId], references: [id])
+    createdAt DateTime @default(now())
+}
