@@ -6,6 +6,7 @@ import cors from "cors";
 import authRouter from "./modules/auth/auth.routes.js"
 import surveyRouter from "./modules/survey/survey.routes.js"
 import responseRouter from "./modules/response/response.route.js"
+import { surveyServices } from "./modules/survey/survey.services.js";
 
 const app = express();
 
@@ -21,7 +22,6 @@ app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/survey", surveyRouter);
 app.use("/api/v1/response", responseRouter);
-
 
 app.get("/", (_req, res) => {
   res.json({
